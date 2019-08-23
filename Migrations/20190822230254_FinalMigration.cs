@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WeddingPlanner.Migrations
 {
-    public partial class firstMigration : Migration
+    public partial class FinalMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,6 +49,42 @@ namespace WeddingPlanner.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Rsvps",
+                columns: table => new
+                {
+                    RsvpId = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<int>(nullable: false),
+                    WeddingId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rsvps", x => x.RsvpId);
+                    table.ForeignKey(
+                        name: "FK_Rsvps_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Rsvps_Weddings_WeddingId",
+                        column: x => x.WeddingId,
+                        principalTable: "Weddings",
+                        principalColumn: "weddingId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rsvps_UserId",
+                table: "Rsvps",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rsvps_WeddingId",
+                table: "Rsvps",
+                column: "WeddingId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Weddings_id",
                 table: "Weddings",
@@ -57,6 +93,9 @@ namespace WeddingPlanner.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Rsvps");
+
             migrationBuilder.DropTable(
                 name: "Weddings");
 

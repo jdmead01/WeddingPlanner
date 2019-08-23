@@ -1,13 +1,17 @@
 @{
 ViewData["Title"] = "Home Page";
 }
+@model WeddingPlanner.Models.Rsvp;
 
 <div class="text-center">
     <h1 class="display-4">Welcome to Wedding Planner!</h1>
     <p>Learn about <a href="Logout">Logout</a>.</p>
 </div>
 
-
+<div class="buttons">
+    <a href="/logout"><button type="button" class="btn btn-primary btn-lg">Logout</button></a>
+    <a href="/dashboard"><button type="button" class="btn btn-primary btn-lg">Dashboard</button></a>
+</div>
 <!-- <div class="wrapper" style="border: 2px solid black;">
     <div class="header" style="border: 1px solid red;">
         <h1 style="color: green;">In the dashboard!</h1>
@@ -15,24 +19,48 @@ ViewData["Title"] = "Home Page";
 </div> -->
 <a href="/create"><button style="align-content: center;">New Wedding</button></a>
 <div class="card">
-    @{ foreach (var wedding in Model){
+    @{ foreach (var wedding in ViewBag.AllWeddings){
     <div class="card-body">
         <img class="card-img-top" style="width: 100px;"
             src="https://proxy.duckduckgo.com/iu/?u=http%3A%2F%2Fassets.vogue.com%2Fphotos%2F58c959fd5624147040f3a03d%2F16%3A9%2Fpass%2F00-social-eleonora-monacella-and-alex-browne-wedding.jpg&f=1"
             alt="Card image cap">
-        <h4 class="card-title">@wedding.wedderOne and @wedding.wedderTwo</h4>
+        <a href="/details/@wedding.weddingId">
+            <h4 class="card-title">@wedding.wedderOne and @wedding.wedderTwo</h4>
+        </a>
         <p class="card-text"> Created By:
             @wedding.creator.FirstName
         </p>
         <p class="card-text"> Date:
             @wedding.weddingDate.ToString("MM/dd/yyyy")
         </p>
-        <p>Number of Guests: 0</p>
+        <p>Number of Guests: @wedding.Rsvp.Count</p>
         <P>Address: @wedding.address</P>
-        <a href="#!" class="btn btn-primary">RSVP</a> | <a href="#!" class="btn btn-primary">Un-RSVP</a>
+        @{
+        if(ViewBag.ReservedWeddings.Contains(wedding))
+        {
+        <form asp-action="Rsvp" asp-controller="Home" asp-route-id="@wedding.weddingId" method="post">
+            <input type="hidden" asp-for="UserId">
+            <input type="hidden" asp-for="WeddingId">
+            <input class="btn btn-primary" type="submit" value="UN-RSVP">
+            <!-- <a href="#!" class="btn btn-primary">RSVP</a> -->
+        </form>
+        }
+        else
+        {
+        <form asp-action="Rsvp" asp-controller="Home" asp-route-id="@wedding.weddingId" method="post">
+            <input type="hidden" asp-for="UserId">
+            <input type="hidden" asp-for="WeddingId">
+            <input class="btn btn-primary" type="submit" value="RSVP">
+        </form>
+        }
+        if (wedding.creator == ViewBag.User){
+        <a href="/details/@wedding.weddingId/delete"><button>Delete</button></a>
+        }
+        }
+
     </div>
     <hr>
     }
-    
+
     }
 </div>

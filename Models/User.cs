@@ -35,5 +35,6 @@ namespace WeddingPlanner.Models {
         [DataType(DataType.Password)]
         public string Confirm {get;set;}
         public List<Wedding> createdWedding {get;set;} = new List<Wedding>();
+        public List<Rsvp> Rsvp {get;set;} = new List<Rsvp>();
     }
 }

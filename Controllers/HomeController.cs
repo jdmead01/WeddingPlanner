@@ -93,9 +93,11 @@ namespace WeddingPlanner.Controllers
             // getting id that is in session and going into the current database and setting it to a variable for use in the remainder of the function. 
             User user = dbContext.Users.FirstOrDefault(u => u.id == HttpContext.Session.GetInt32("Id"));
             if (ModelState.IsValid){
+                if (modelData.weddingDate < DateTime.Today){
+                    ModelState.AddModelError("Date", "Date Must Be in the Future Bitch! Dont get so excited!");
+                    return View("New");
+                }
                 modelData.id = user.id;
-
-
                 dbContext.Weddings.Add(modelData);
                 // When adding to the database through your context, AFTER "dbcontext.SaveChanges();" the database details are RETURNED and inherited by the form that was passed in
                 dbContext.SaveChanges();
@@ -114,6 +116,58 @@ namespace WeddingPlanner.Controllers
         // {
         //     return View();
         // }
+        [HttpGet("details/{id}")]
+        public IActionResult Details (int id){
+            int? userid = HttpContext.Session.GetInt32("Id");
+            if (userid == null){
+                // redirectToAction redirects to a function 
+                return RedirectToAction("Index");
+            }
+            // OOP: Create an instance of my class of "Wedding" named 'wedding'
+            Wedding wedding = dbContext.Weddings.Include(w => w.creator).Include(w => w.Rsvp).ThenInclude(r => r.user).FirstOrDefault(w => w.weddingId == id);
+            return View(wedding);
+        }
+        // [HttpPost("rsvp")]
+        public IActionResult Rsvp (int id, Rsvp modelData){
+            // Checks if user is in session and gets it 
+            int? userid = HttpContext.Session.GetInt32("Id");
+            if (userid == null){
+                return RedirectToAction("Index");
+            }
+
+            // Checks if wedding is in database and gets it
+            Wedding wedding = dbContext.Weddings.Include(w=> w.Rsvp).FirstOrDefault(w=> w.weddingId == id);
+
+            if(wedding == null)
+            {
+                return RedirectToAction("Dashboard");
+            }
+            ///////////////////////////////////
+            User user = dbContext.Users.Include(u => u.Rsvp).FirstOrDefault(u => u.id == userid);
+
+
+            Rsvp rsvp = dbContext.Rsvps.FirstOrDefault(r => r.UserId == user.id && r.WeddingId == id);
+            if(rsvp == null)
+            {
+                modelData.UserId = user.id;
+                modelData.WeddingId = id;
+                dbContext.Rsvps.Add(modelData);
+                dbContext.SaveChanges();
+                user.Rsvp.Add(modelData);
+                wedding.Rsvp.Add(modelData);
+                dbContext.SaveChanges();
+            }
+            else if(rsvp != null)
+            {
+                dbContext.Rsvps.Remove(rsvp);
+                dbContext.SaveChanges();
+                user.Rsvp.Remove(rsvp);
+                wedding.Rsvp.Remove(rsvp);
+                dbContext.SaveChanges();
+            }
+
+            return RedirectToAction("Dashboard");
+        }
 
         [HttpGet("dashboard")]
         public IActionResult Dashboard()
@@ -125,9 +179,17 @@ namespace WeddingPlanner.Controllers
                 // redirectToAction redirects to a function 
                 return RedirectToAction("Index");
             }
-            List<Wedding> allWeddings = dbContext.Weddings.Include(w => w.creator).ToList();
 
-            return View(allWeddings);
+            User user = dbContext.Users.Include(u => u.Rsvp).FirstOrDefault(u => u.id == userid);
+
+            List<Wedding> allWeddings = dbContext.Weddings.Include(w => w.creator).Include(w=> w.Rsvp).ThenInclude(r=> r.user).ToList();
+
+            List<Wedding> reservedWeddings = dbContext.Rsvps.Include(r=> r.wedding).Where(r=> r.UserId == user.id).Select(r => r.wedding).ToList();
+
+            ViewBag.User = user;
+            ViewBag.AllWeddings = allWeddings;
+            ViewBag.ReservedWeddings = reservedWeddings;
+            return View();
         }
         [HttpGet("create")]
         public IActionResult New()
@@ -141,6 +203,27 @@ namespace WeddingPlanner.Controllers
             }
 
             return View("New");
+        }
+
+        [HttpGet("details/{id}/delete")]
+        public IActionResult Delete (int id) {
+            int? userid = HttpContext.Session.GetInt32("Id");
+            if (userid == null){
+                // redirectToAction redirects to a function 
+                return RedirectToAction("Index");
+            }
+            // setting the user to a variable from session
+            User user = dbContext.Users.Include(u => u.Rsvp).FirstOrDefault(u => u.id == userid);
+
+            // This gets a wedding based on our route id
+            Wedding wedding = dbContext.Weddings.Include(w => w.creator).Include(w => w.Rsvp).ThenInclude(r => r.user).FirstOrDefault(w => w.weddingId == id);
+
+            if (wedding.creator == user){
+                user.createdWedding.Remove(wedding);
+                dbContext.Weddings.Remove(wedding);
+                dbContext.SaveChanges();
+            }
+            return RedirectToAction("Dashboard");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

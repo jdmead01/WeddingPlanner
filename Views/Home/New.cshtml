@@ -1,6 +1,10 @@
 <!-- Make sure to import the models here  -->
 @model WeddingPlanner.Models.Wedding
 
+<div class="buttons">
+    <a href="/logout"><button type="button" class="btn btn-primary btn-lg">Logout</button></a>
+    <a href="/dashboard"><button type="button" class="btn btn-primary btn-lg">Dashboard</button></a>
+</div>
 
 <div class="wrapper">
     <div class="container">
@@ -17,6 +21,7 @@
                 </div>
                 <div class="form-group">
                     <label for="date">Date:</label>
+                    <P style="color: red;">@Html.ValidationMessage("Date")</P>
                     <input type="date" asp-for="weddingDate" class="form-control">
                 </div>
                 <div class="form-group">

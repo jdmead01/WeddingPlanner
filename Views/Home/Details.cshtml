@@ -1,27 +1,34 @@
-<!-- Make sure to import the models here  -->
-@model WeddingPlanner.Models.Wedding
 
+<div class="buttons">
+<a href="/logout"><button type="button" class="btn btn-primary btn-lg">Logout</button></a>
+<a href="/dashboard"><button type="button" class="btn btn-primary btn-lg">Dashboard</button></a>
+</div>
 
-<div class="wrapper">
-    <div class="container">
-        <div class="header"></div>
-        <div class="body">
-                <form asp-action="Create" asp-controller="Home" method="post">
-                        <div class="form-group">
-                            <label for="name">Wedder One:</label>
-                            <input type="text" asp-for="wedderOne" class="form-control"
-                                placeholder="Enter your first name">
-                        </div>
-                        <div class="form-group">
-                                <label for="name">Wedder Two:</label>
-                                <input type="text" asp-for="wedderTwo" class="form-control"
-                                    placeholder="Enter your first name">
-                            </div>
-                       
-                        <div class="button">
-                            <button class="btn btn-primary" type="submit">Register</button>
-                        </div>
-                    </form>
-        </div>
-    </div>
+<div class="header">
+    <h1>@Model.wedderOne & @Model.wedderTwo</h1>
+</div>
+
+<div class="date">
+<h2>Date: @Model.weddingDate.ToString("MM/dd/yyyy")</h2>
+</div>
+
+<div class="table">
+        <table class="table"> List of Guests:
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @{ foreach (var rsvp in Model.Rsvp){
+                  <tr>
+                    <!-- <th scope="row"></th> -->
+                    <td>@rsvp.user.FirstName @rsvp.user.LastName</td>
+                    <td>@rsvp.user.Email</td>
+                  </tr>
+                }
+              }
+                </tbody>
+              </table>
 </div>

@@ -11,5 +11,6 @@ namespace WeddingPlanner.Models
 
          public DbSet<User> Users {get;set;}
          public DbSet<Wedding> Weddings {get;set;}
+         public DbSet<Rsvp> Rsvps {get;set;}
     }
 }

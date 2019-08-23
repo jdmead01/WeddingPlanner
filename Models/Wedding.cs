@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Collections.Generic;
 
 namespace WeddingPlanner.Models{
     public class Wedding
@@ -22,6 +22,8 @@ namespace WeddingPlanner.Models{
 
         public int id {get;set;}
         public User creator {get;set;}
+
+        public List<Rsvp> Rsvp {get;set;} = new List<Rsvp>();
 
     }
 }
